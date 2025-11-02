@@ -11,20 +11,25 @@ public class FollowAgent : MonoBehaviour
     [Header("Animasyon Ayarları")]
     [Tooltip("Animasyon geçişlerinin ne kadar yumuşak olacağı.")]
     [SerializeField] float animationDampTime = 0.1f;
-    [Tooltip("Animator'deki hız parametresinin adı.")]
-    [SerializeField] string speedParameterName = "Speed"; 
+    
+    private string paramSpeed = "Speed";
+    private string paramGrounded = "Grounded";
+    private string paramMotionSpeed = "MotionSpeed";
     
     private NavMeshAgent agent;
     private Animator animator;
     
-    private int speedParamID;
-
+    private int animIDSpeed;
+    private int animIDGrounded;
+    private int animIDMotionSpeed; 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         
-        speedParamID = Animator.StringToHash(speedParameterName);
+        animIDSpeed = Animator.StringToHash(paramSpeed);
+        animIDGrounded = Animator.StringToHash(paramGrounded);
+        animIDMotionSpeed = Animator.StringToHash(paramMotionSpeed);
         
         if (playerTransform == null)
         {
@@ -47,7 +52,13 @@ public class FollowAgent : MonoBehaviour
             agent.SetDestination(playerTransform.position);
         }
         
-        float currentSpeed = agent.velocity.magnitude;
-        animator.SetFloat(speedParamID, currentSpeed, animationDampTime,Time.deltaTime);
+        float currentPhysicalSpeed = agent.velocity.magnitude;
+
+     
+        animator.SetBool(animIDGrounded, true);
+        animator.SetFloat(animIDSpeed, currentPhysicalSpeed, animationDampTime, Time.deltaTime);
+        
+        float motionSpeedValue = currentPhysicalSpeed > 0.1f ? 1.0f : 0.0f;
+        animator.SetFloat(animIDMotionSpeed, motionSpeedValue);
     }
 }
